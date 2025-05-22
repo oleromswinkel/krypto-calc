@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Square-and-Multiply</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <h1>SQM-Calculator</h1>
+  <input type="number" id="base" placeholder="base" oninput="calculateSQM()">
+  <input type="number" id="exponent" placeholder="exponent" oninput="calculateSQM()">
+  <input type="number" id="modulus" placeholder="modulus" oninput="calculateSQM()">
+  <br><br>
+  <p><span id="table"></span></p>
+  <p><span id="result"></span></p>
+
+  <script>
+    window.onload = function() {
+      calculateSQM()
+    }
+
+    function calculateSQM() {
+      const base = parseInt(document.getElementById("base").value) || 0;
+      const exponent = parseInt(document.getElementById("exponent").value) || 0;
+      const modulus = parseInt(document.getElementById("modulus").value) || 0;
+      
+      if (base * exponent * modulus == 0) {
+        return;
+      }
+
+      const exponent_bin = exponent.toString(2);
+
+      const prefix = `Binary: ${exponent_bin}`
+      let table = "<table><thead><tr><th>Step</th><th>Bit</th><th>Operation</th><th>Result</th></tr></thead>";
+
+      let result = 0;
+      for (let i = 0; i < exponent_bin.length; i++) {
+        let operation = ""
+        if (exponent_bin[i] == 1) {
+          operation = "SQM";
+        } else {
+          operation = "SQ";
+        }
+        
+        if (i == 0) {
+          operation = "";
+          result = base;
+        } else if (exponent_bin[i] == 1) {
+          result = (result**2 * base) % modulus;
+        } else {
+          result = (result**2) % modulus;
+        }
+        
+        table += `<tr><td>${i + 1}</td><td>${exponent_bin[i]}</td><td>${operation}</td><td>${result}</td></tr>`;
+      }
+
+      table += "</table>" 
+
+      document.getElementById("table").innerHTML = prefix + table
+      document.getElementById("result").textContent = `Final Result = ${result}`;
+    }
+  </script>
+</body>
+</html>
