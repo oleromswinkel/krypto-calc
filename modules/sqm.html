@@ -12,13 +12,22 @@
   <input type="number" id="base" placeholder="base" oninput="calculateSQM()">
   <input type="number" id="exponent" placeholder="exponent" oninput="calculateSQM()">
   <input type="number" id="modulus" placeholder="modulus" oninput="calculateSQM()">
+  <button onclick="latexToggle()">LaTeX Mode</button>
   <br><br>
+  <p><span id="prefix"></span></p>
   <p><span id="table"></span></p>
   <p><span id="result"></span></p>
 
   <script>
+    let latexMode = false;
+
     window.onload = function() {
-      calculateSQM()
+      calculateSQM();
+    }
+
+    function latexToggle() {
+      latexMode = !latexMode;
+      calculateSQM();
     }
 
     function calculateSQM() {
@@ -31,11 +40,15 @@
       }
 
       const exponent_bin = exponent.toString(2);
-
-      const prefix = `Binary: ${exponent_bin}`
-      let table = "<table><thead><tr><th>Step</th><th>Bit</th><th>Operation</th><th>Result</th></tr></thead>";
-
       let result = 0;
+      let table = ""
+
+      if (latexMode) {
+        table ="<pre<code>\\begin{tabular}{|c|c|c|c|}<br>\\hline<br>Step & Bit & Operation & Result \\\\<br>\\hline<br>";
+      } else {
+        table = "<table><thead><tr><th>Step</th><th>Bit</th><th>Operation</th><th>Result</th></tr></thead>";
+      }
+      
       for (let i = 0; i < exponent_bin.length; i++) {
         let operation = ""
         if (exponent_bin[i] == 1) {
@@ -43,7 +56,7 @@
         } else {
           operation = "SQ";
         }
-        
+          
         if (i == 0) {
           operation = "";
           result = base;
@@ -53,12 +66,21 @@
           result = (result**2) % modulus;
         }
         
-        table += `<tr><td>${i + 1}</td><td>${exponent_bin[i]}</td><td>${operation}</td><td>${result}</td></tr>`;
+        if (latexMode) {
+          table += `${i + 1} & ${exponent_bin[i]} & ${operation} & ${result} \\\\<br>`;
+        } else {
+          table += `<tr><td>${i + 1}</td><td>${exponent_bin[i]}</td><td>${operation}</td><td>${result}</td></tr>`;
+        }
       }
 
-      table += "</table>" 
+      if (latexMode) {
+        table += "\\hline<br>\\end{tabular}</code><pre>";
+      } else {
+        table += "</table>";
+      }
 
-      document.getElementById("table").innerHTML = prefix + table
+      document.getElementById("prefix").textContent = `Binary: ${exponent_bin}`;
+      document.getElementById("table").innerHTML = table;
       document.getElementById("result").textContent = `Final Result = ${result}`;
     }
   </script>
