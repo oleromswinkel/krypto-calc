@@ -41,10 +41,10 @@
 
       const exponent_bin = exponent.toString(2);
       let result = 0;
-      let table = ""
+      let table = "";
 
       if (latexMode) {
-        table ="<pre<code>\\begin{tabular}{|c|c|c|c|}<br>\\hline<br>Step & Bit & Operation & Result \\\\<br>\\hline<br>";
+        table ="\\begin{tabular}{|c|c|c|c|}<br>\\hline<br>Step & Bit & Operation & Result \\\\<br>\\hline<br>";
       } else {
         table = "<table><thead><tr><th>Step</th><th>Bit</th><th>Operation</th><th>Result</th></tr></thead>";
       }
@@ -74,7 +74,7 @@
       }
 
       if (latexMode) {
-        table += "\\hline<br>\\end{tabular}</code><pre>";
+        table += "\\hline<br>\\end{tabular}";
       } else {
         table += "</table>";
       }

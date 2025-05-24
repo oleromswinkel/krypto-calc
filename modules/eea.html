@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Extended Euclidean Algorithm</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <h1>EEA/Inverse-Calculator</h1>
+  <input type="number" id="number" placeholder="number" oninput="calculateEEA()">
+  <input type="number" id="modulus" placeholder="modulus" oninput="calculateEEA()">
+  <br><br>
+  <p><span id="table"></span></p>
+  <p><span id="result"></span></p>
+
+  <script>
+    window.onload = function() {
+      calculateEEA();
+    }
+
+    function latexToggle() {
+      latexMode = !latexMode;
+      calculateEEA();
+    }
+
+    function calculateEEA() {
+      const n = parseInt(document.getElementById("number").value) || 0;
+      const mod = parseInt(document.getElementById("modulus").value) || 0;
+      let r_2 = mod;
+      let r_1 = n;
+
+      if (r_1 * r_2 == 0) {
+        return;
+      }
+
+      let table = "";
+      let s_2 = 1, s_1 = 0, t_2 = 0, t_1 = 1;
+
+      table = "<table><thead><tr><th><i>i</i></th><th><i>q<sub>i-1</sub></i></th><th><i>r<sub>i</sub></i></th><th><i>s<sub>i</sub></i></th><th><i>t<sub>i</sub></i></th></tr></thead>";
+      table += `<tr><td>${0}</td><td>-</td><td>${r_2}</td><td>${s_2}</td><td>${t_2}</td></tr>`;
+      table += `<tr><td>${1}</td><td>-</td><td>${r_1}</td><td>${s_1}</td><td>${t_1}</td></tr>`;
+      
+      let i = 2;
+      while (true) {
+        let r = r_2 % r_1;
+        let q_1 = (r_2 - r) / r_1;
+        let s = s_2 - q_1 * s_1;
+        let t = t_2 - q_1 * t_1;
+
+        if (r == 0) {
+            table += `<tr><td>${i}</td><td></td><td>${r}</td><td></td><td></td></tr>`;
+            break;
+        } else {
+            table += `<tr><td>${i}</td><td>${q_1}</td><td>${r}</td><td>${s}</td><td>${t}</td></tr>`;
+        }
+
+        r_2 = r_1, r_1 = r;
+        s_2 = s_1, s_1 = s;
+        t_2 = t_1, t_1 = t;
+
+        i++;
+      }
+
+      document.getElementById("table").innerHTML = table;
+      document.getElementById("result").innerHTML = `${n}<sup>-1</sup> ≡ ${t_1} mod ${mod}`;
+    }
+  </script>
+</body>
+</html>
