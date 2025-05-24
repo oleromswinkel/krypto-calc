@@ -64,7 +64,12 @@
       }
 
       document.getElementById("table").innerHTML = table;
-      document.getElementById("result").innerHTML = `${n}<sup>-1</sup> ≡ ${t_1} mod ${mod}`;
+
+      if (r_1 == 1) {
+        document.getElementById("result").innerHTML = `${n}<sup>-1</sup> ≡ ${t_1} mod ${mod}`;
+      } else {
+        document.getElementById("result").innerHTML = `${n}<sup>-1</sup> mod ${mod} existiert nicht`;
+      }
     }
   </script>
 </body>
