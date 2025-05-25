@@ -11,11 +11,14 @@
   <h1>EEA/Inverse-Calculator</h1>
   <input type="number" id="number" placeholder="number" oninput="calculateEEA()">
   <input type="number" id="modulus" placeholder="modulus" oninput="calculateEEA()">
+  <button onclick="latexToggle()">LaTeX Mode</button>
   <br><br>
   <p><span id="table"></span></p>
   <p><span id="result"></span></p>
 
   <script>
+    let latexMode = false;
+
     window.onload = function() {
       calculateEEA();
     }
@@ -38,10 +41,16 @@
       let table = "";
       let s_2 = 1, s_1 = 0, t_2 = 0, t_1 = 1;
 
-      table = "<table><thead><tr><th><i>i</i></th><th><i>q<sub>i-1</sub></i></th><th><i>r<sub>i</sub></i></th><th><i>s<sub>i</sub></i></th><th><i>t<sub>i</sub></i></th></tr></thead>";
-      table += `<tr><td>${0}</td><td>-</td><td>${r_2}</td><td>${s_2}</td><td>${t_2}</td></tr>`;
-      table += `<tr><td>${1}</td><td>-</td><td>${r_1}</td><td>${s_1}</td><td>${t_1}</td></tr>`;
-      
+      if (latexMode) {
+        table = "\\begin{tabular}{|c|c|c|c|c|}<br>\\hline<br>$i$ & $q_{i-1}$ & $r_i$ & $s_i$ & $t_i$ \\\\<br>\\hline<br>";
+        table += `0 & - & ${r_2} & ${s_2} & ${t_2} \\\\<br>`;
+        table += `1 & - & ${r_1} & ${s_1} & ${t_1} \\\\<br>`;
+      } else {
+        table = "<table><thead><tr><th><i>i</i></th><th><i>q<sub>i-1</sub></i></th><th><i>r<sub>i</sub></i></th><th><i>s<sub>i</sub></i></th><th><i>t<sub>i</sub></i></th></tr></thead>";
+        table += `<tr><td>0</td><td>-</td><td>${r_2}</td><td>${s_2}</td><td>${t_2}</td></tr>`;
+        table += `<tr><td>1</td><td>-</td><td>${r_1}</td><td>${s_1}</td><td>${t_1}</td></tr>`;
+      }
+
       let i = 2;
       while (true) {
         let r = r_2 % r_1;
@@ -50,10 +59,18 @@
         let t = t_2 - q_1 * t_1;
 
         if (r == 0) {
+          if (latexMode) {
+            table += `${i} & & ${r} & & \\\\<br>\\hline<br>\\end{tabular}`;
+          } else {
             table += `<tr><td>${i}</td><td></td><td>${r}</td><td></td><td></td></tr>`;
-            break;
+          }
+          break;
         } else {
-            table += `<tr><td>${i}</td><td>${q_1}</td><td>${r}</td><td>${s}</td><td>${t}</td></tr>`;
+            if (latexMode) {
+              table += `${i} & ${q_1} & ${r} & ${s} & ${t} \\\\<br>`;
+            } else {
+              table += `<tr><td>${i}</td><td>${q_1}</td><td>${r}</td><td>${s}</td><td>${t}</td></tr>`;
+            }
         }
 
         r_2 = r_1, r_1 = r;
@@ -66,9 +83,17 @@
       document.getElementById("table").innerHTML = table;
 
       if (r_1 == 1) {
-        document.getElementById("result").innerHTML = `${n}<sup>-1</sup> ≡ ${t_1} mod ${mod}`;
+        if (latexMode) {
+          document.getElementById("result").innerHTML = `$${n}^{-1} \\equiv ${t_1} \\bmod ${mod}$`
+        } else {
+          document.getElementById("result").innerHTML = `${n}<sup>-1</sup> ≡ ${t_1} mod ${mod}`;
+        }
       } else {
-        document.getElementById("result").innerHTML = `${n}<sup>-1</sup> mod ${mod} existiert nicht`;
+        if (latexMode) {
+          document.getElementById("result").innerHTML = `$${n}^{-1} \\bmod ${mod}$ existiert nicht`;
+        } else {
+          document.getElementById("result").innerHTML = `${n}<sup>-1</sup> mod ${mod} existiert nicht`;
+        }
       }
     }
   </script>
