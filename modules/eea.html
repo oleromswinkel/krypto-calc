@@ -28,6 +28,10 @@
       calculateEEA();
     }
 
+    function positiveMod(a, n) {
+      return ((a % n) + n) % n;
+    }
+
     function calculateEEA() {
       const n = parseInt(document.getElementById("number").value) || 0;
       const mod = parseInt(document.getElementById("modulus").value) || 0;
@@ -84,9 +88,9 @@
 
       if (r_1 == 1) {
         if (latexMode) {
-          document.getElementById("result").innerHTML = `$${n}^{-1} \\equiv ${t_1} \\bmod ${mod}$`
+          document.getElementById("result").innerHTML = `$${n}^{-1} \\equiv ${positiveMod(t_1, mod)} \\bmod ${mod}$`
         } else {
-          document.getElementById("result").innerHTML = `${n}<sup>-1</sup> ≡ ${t_1} mod ${mod}`;
+          document.getElementById("result").innerHTML = `${n}<sup>-1</sup> ≡ ${positiveMod(t_1, mod)} mod ${mod}`;
         }
       } else {
         if (latexMode) {
