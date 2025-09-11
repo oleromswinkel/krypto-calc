@@ -51,81 +51,93 @@
 
     function modInverse(a, m) {
       a = positiveMod(a, m);
-    
-      let [old_r, r] = [a, m];
-      let [old_s, s] = [1, 0];
-      let [old_t, t] = [0, 1];
+      let [r, r1] = [a, m];
+      let [s, s1] = [1, 0];
 
-      while (r !== 0) {
-        const quotient = Math.floor(old_r / r);
-        [old_r, r] = [r, old_r - quotient * r];
-        [old_s, s] = [s, old_s - quotient * s];
-        [old_t, t] = [t, old_t - quotient * t];
+      while (r1 !== 0) {
+        const quotient = Math.floor(r / r1);
+        [r, r1] = [r1, r - quotient * r1];
+        [s, s1] = [s1, s - quotient * s1];
       }
 
-      if (old_r !== 1) {
-          throw new Error("Modular inverse does not exist");
+      if (r !== 1) throw new Error("Modular inverse does not exist");
+      return positiveMod(s, m);
+    }
+
+    function clearElements(arr) {
+      for (const id of arr) {
+        document.getElementById(id).innerHTML = "";
       }
-    
-      return positiveMod(old_s, m);
+    }
+
+    function getValue(id) {
+      return parseInt(document.getElementById(id).value);
+    }
+
+    function setHTML(id, content) {
+      return document.getElementById(id).innerHTML = content;
+    }
+
+    function setColor(id, color) {
+      return document.getElementById(id).style.color = color;
     }
 
     function calculateECC() {
-      const a = parseInt(document.getElementById("a").value);
-      const b = parseInt(document.getElementById("b").value);
-      const p = parseInt(document.getElementById("p").value);
+      const a = getValue("a");
+      const b = getValue("b");
+      const p = getValue("p");
 
       if (isNaN(a) || isNaN(b) || isNaN(p)) {
-        document.getElementById("curve_valid").innerHTML = "";
-        document.getElementById("p_valid").innerHTML = "";
-        document.getElementById("q_valid").innerHTML = "";
+        clearElements(["curve_valid", "p_valid", "q_valid", "calculation"]);
         return;
       } else if ((4 * a**3 + 27 * b**2) % p == 0 || p <= 3) {
-        document.getElementById("curve_valid").innerHTML = "(invalid curve)";
-        document.getElementById("curve_valid").style.color = "red";
+        clearElements(["p_valid", "q_valid", "calculation"]);
+        setHTML("curve_valid", "(invalid curve)");
+        setColor("curve_valid", "red");
         return;
       } else {
-        document.getElementById("curve_valid").innerHTML = "(valid curve)";
-        document.getElementById("curve_valid").style.color = "green";
+        setHTML("curve_valid", "(valid curve)");
+        setColor("curve_valid", "green");
       }
 
-      const x1 = parseInt(document.getElementById("x1").value);
-      const y1 = parseInt(document.getElementById("y1").value);
-      const x2 = parseInt(document.getElementById("x2").value);
-      const y2 = parseInt(document.getElementById("y2").value);
+      const x1 = getValue("x1");
+      const y1 = getValue("y1");
+      const x2 = getValue("x2");
+      const y2 = getValue("y2");
 
       let pInvalid = true;
       let qInvalid = true;
 
       if (isNaN(x1) || isNaN(y1)) {
-        document.getElementById("p_valid").innerHTML = "";
+        clearElements(["p_valid"]);
       } else if (y1**2 % p == (x1**3 + a * x1 + b) % p) {
-        document.getElementById("p_valid").innerHTML = "(point on curve)";
-        document.getElementById("p_valid").style.color = "green";
+        setHTML("p_valid", "(point on curve)");
+        setColor("p_valid", "green");
         pInvalid = false;
       } else {
-        document.getElementById("p_valid").innerHTML = "(point not on curve)";
-        document.getElementById("p_valid").style.color = "red";
+        setHTML("p_valid", "(point not on curve)");
+        setColor("p_valid", "red");
       }
 
       if (isNaN(x2) || isNaN(y2)) {
-        document.getElementById("q_valid").innerHTML = "";
+        clearElements(["q_valid"]);
       } else if (y2**2 % p == (x2**3 + a * x2 + b) % p) {
-        document.getElementById("q_valid").innerHTML = "(point on curve)";
-        document.getElementById("q_valid").style.color = "green";
+        setHTML("q_valid", "(point on curve)");
+        setColor("q_valid", "green");
         qInvalid = false;
       } else {
-        document.getElementById("q_valid").innerHTML = "(point not on curve)";
-        document.getElementById("q_valid").style.color = "red";
+        setHTML("q_valid", "(point not on curve)");
+        setColor("q_valid", "red");
       }
 
       if (pInvalid || qInvalid) {
+        clearElements(["calculation"]);
         return;
       }
 
       let s = 0;
       if (positiveMod(x1, p) == positiveMod(x2, p) & positiveMod(y1, p) == positiveMod(-y2, p)) {
-        document.getElementById("calculation").innerHTML = `P + Q = (0, 0)`;
+        setHTML("calculation", "P + Q = (0, 0)");
         return;
       } else if (positiveMod(x1, p) == positiveMod(x2, p) & positiveMod(y1, p) == positiveMod(y2, p)) {
         s = ((3 * x1**2 + a) * modInverse(2*y1, p)) % p;
@@ -136,7 +148,7 @@
       const x3 = positiveMod(s**2 - x1 - x2, p);
       const y3 = positiveMod(s * (x1 - x3) - y1, p);
 
-      document.getElementById("calculation").innerHTML = `P + Q = (${x3}, ${y3})`;
+      setHTML("calculation", `P + Q = (${x3}, ${y3})`);
     }
   </script>
 </body>
