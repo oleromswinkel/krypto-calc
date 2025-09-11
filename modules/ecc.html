@@ -16,6 +16,7 @@
   <input type="number" id="b" placeholder="b" oninput="calculateECC()"> 
   mod 
   <input type="number" id="p" placeholder="p" oninput="calculateECC()">
+  <span id="curve_valid"></span>
 
   <br><br>
 
@@ -24,6 +25,7 @@
   , 
   <input type="number" id="y1" placeholder="y1" oninput="calculateECC()">
   )
+  <span id="p_valid"></span>
 
   <br>
 
@@ -32,20 +34,19 @@
   , 
   <input type="number" id="y2" placeholder="y2" oninput="calculateECC()">
   )
+  <span id="q_valid"></span>
 
   <br><br>
 
   <p><span id="calculation"></span></p>
 
   <script>
-    let latexMode = false;
-
     window.onload = function() {
       calculateECC();
     }
 
-    function positiveMod(a, n) {      
-      return ((a % n) + n) % n;
+    function positiveMod(a, m) {      
+      return ((a % m) + m) % m;
     }
 
     function modInverse(a, m) {
@@ -63,7 +64,7 @@
       }
 
       if (old_r !== 1) {
-          throw new Error('Modular inverse does not exist');
+          throw new Error("Modular inverse does not exist");
       }
     
       return positiveMod(old_s, m);
@@ -75,10 +76,17 @@
       const p = parseInt(document.getElementById("p").value);
 
       if (isNaN(a) || isNaN(b) || isNaN(p)) {
+        document.getElementById("curve_valid").innerHTML = "";
+        document.getElementById("p_valid").innerHTML = "";
+        document.getElementById("q_valid").innerHTML = "";
         return;
-      } else if ((4 * a**3 + 27 * b**2) % p == 0) {
-        document.getElementById("calculation").innerHTML = "Is <b>not</b> a valid elliptic curve!";
+      } else if ((4 * a**3 + 27 * b**2) % p == 0 || p <= 3) {
+        document.getElementById("curve_valid").innerHTML = "(invalid curve)";
+        document.getElementById("curve_valid").style.color = "red";
         return;
+      } else {
+        document.getElementById("curve_valid").innerHTML = "(valid curve)";
+        document.getElementById("curve_valid").style.color = "green";
       }
 
       const x1 = parseInt(document.getElementById("x1").value);
@@ -86,11 +94,32 @@
       const x2 = parseInt(document.getElementById("x2").value);
       const y2 = parseInt(document.getElementById("y2").value);
 
-      if (isNaN(x1) || isNaN(y1) || isNaN(x2) || isNaN(y2)) {
-        document.getElementById("calculation").innerHTML = "Is a valid elliptic curve!";
-        return;
-      } else if ((y1**2 % p != (x1**3 + a * x1 + b) % p) || (y2**2 % p != (x2**3 + a * x2 + b) % p)) {
-        document.getElementById("calculation").innerHTML = "One of the points is not on the curve!";
+      let pInvalid = true;
+      let qInvalid = true;
+
+      if (isNaN(x1) || isNaN(y1)) {
+        document.getElementById("p_valid").innerHTML = "";
+      } else if (y1**2 % p == (x1**3 + a * x1 + b) % p) {
+        document.getElementById("p_valid").innerHTML = "(point on curve)";
+        document.getElementById("p_valid").style.color = "green";
+        pInvalid = false;
+      } else {
+        document.getElementById("p_valid").innerHTML = "(point not on curve)";
+        document.getElementById("p_valid").style.color = "red";
+      }
+
+      if (isNaN(x2) || isNaN(y2)) {
+        document.getElementById("q_valid").innerHTML = "";
+      } else if (y2**2 % p == (x2**3 + a * x2 + b) % p) {
+        document.getElementById("q_valid").innerHTML = "(point on curve)";
+        document.getElementById("q_valid").style.color = "green";
+        qInvalid = false;
+      } else {
+        document.getElementById("q_valid").innerHTML = "(point not on curve)";
+        document.getElementById("q_valid").style.color = "red";
+      }
+
+      if (pInvalid || qInvalid) {
         return;
       }
 
@@ -98,8 +127,7 @@
       if (positiveMod(x1, p) == positiveMod(x2, p) & positiveMod(y1, p) == positiveMod(-y2, p)) {
         document.getElementById("calculation").innerHTML = `P + Q = (0, 0)`;
         return;
-      }
-      else if (positiveMod(x1, p) == positiveMod(x2, p) & positiveMod(y1, p) == positiveMod(y2, p)) {
+      } else if (positiveMod(x1, p) == positiveMod(x2, p) & positiveMod(y1, p) == positiveMod(y2, p)) {
         s = ((3 * x1**2 + a) * modInverse(2*y1, p)) % p;
       } else {
         s = ((y2 - y1) * modInverse(x2-x1, p)) % p;
