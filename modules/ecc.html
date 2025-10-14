@@ -38,10 +38,21 @@
 
   <br><br>
 
+  <button onclick="latexToggle()">LaTeX Mode</button>
+
+  <br><br>
+
   <p><span id="calculation"></span></p>
 
   <script>
+    let latexMode = false;
+
     window.onload = function() {
+      calculateECC();
+    }
+
+    function latexToggle() {
+      latexMode = !latexMode;
       calculateECC();
     }
 
@@ -138,26 +149,47 @@
       let s = 0;
       let calculation = "";
       if (mod(x1) == mod(x2) & mod(y1) == mod(-y2)) {
-        calculation = `(${x1}, ${y1}) = (${x2}, -${y2}) <br><br>`;
-        calculation += "P + Q = (0, 0)";
+        if (latexMode) {
+          calculation = `$(${x1}, ${y1}) = (${x2}, -${y2})$ <br><br>`;
+          calculation += "$P + Q = (0, 0)$";
+        } else {
+          calculation = `(${x1}, ${y1}) = (${x2}, -${y2}) <br><br>`;
+          calculation += "P + Q = (0, 0)";
+        }
         setHTML("calculation", calculation);
         return;
       } else if (mod(x1) == mod(x2) & mod(y1) == mod(y2)) {
-        calculation = `(${x1}, ${y1}) = (${x2}, ${y2}) <br><br>`;
         s = mod((3 * x1**2 + a) * inverse(2*y1));
-        calculation += `s = (3 • ${x1}<sup>2</sup> + ${a}) • (2 • ${y1})<sup>-1</sup> = ${s} mod ${p} <br><br>`;
+        if (latexMode) {
+          calculation = `$(${x1}, ${y1}) = (${x2}, ${y2})$ <br><br>`;
+          calculation += `$s = (3 \\cdot ${x1}^2 + ${a}) \\cdot (2 \\cdot ${y1})^{-1} = ${s} \\bmod ${p}$ <br><br>`;
+        } else {
+          calculation = `(${x1}, ${y1}) = (${x2}, ${y2}) <br><br>`;
+          calculation += `s = (3 • ${x1}<sup>2</sup> + ${a}) • (2 • ${y1})<sup>-1</sup> = ${s} mod ${p} <br><br>`;
+        }
       } else {
-        calculation = `(${x1}, ${y1}) ≠ (${x2}, ${y2}) <br><br>`;
         s = mod((y2 - y1) * inverse(x2-x1, p));
-        calculation += `s = (${y2} - ${y1}) • (${x2} - ${x1})<sup>-1</sup> = ${s} mod ${p} <br><br>`;
+        if (latexMode) {
+          calculation = `$(${x1}, ${y1}) \\neq (${x2}, ${y2})$ <br><br>`;
+          calculation += `$s = (${y2} - ${y1}) \\cdot (${x2} - ${x1})^{-1} = ${s} \\bmod ${p}$ <br><br>`;
+        } else {
+          calculation = `(${x1}, ${y1}) ≠ (${x2}, ${y2}) <br><br>`;
+          calculation += `s = (${y2} - ${y1}) • (${x2} - ${x1})<sup>-1</sup> = ${s} mod ${p} <br><br>`;
+        }
       }
 
       const x3 = mod(s**2 - x1 - x2);
-      calculation += `x<sub>3</sub> = ${s}<sup>2</sup> - ${x1} - ${x2} = ${x3} mod ${p} <br>`;
       const y3 = mod(s * (x1 - x3) - y1);
-      calculation += `y<sub>3</sub> = ${s} • (${x1} - ${x3}) - ${y1} = ${y3} mod ${p} <br><br>`;
-      
-      calculation += `P + Q = (${x3}, ${y3})`;
+
+      if (latexMode) {
+        calculation += `$x_3 = ${s}^2 - ${x1} - ${x2} = ${x3} \\bmod ${p}$ <br>`;
+        calculation += `$y_3 = ${s} \\cdot (${x1} - ${x3}) - ${y1} = ${y3} \\bmod ${p}$ <br><br>`;
+        calculation += `$P + Q = (${x3}, ${y3})$`;
+      } else {
+        calculation += `x<sub>3</sub> = ${s}<sup>2</sup> - ${x1} - ${x2} = ${x3} mod ${p} <br>`;
+        calculation += `y<sub>3</sub> = ${s} • (${x1} - ${x3}) - ${y1} = ${y3} mod ${p} <br><br>`;
+        calculation += `P + Q = (${x3}, ${y3})`;
+      }
 
       setHTML("calculation", calculation);
     }
