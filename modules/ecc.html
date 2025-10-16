@@ -44,6 +44,7 @@
 
   <p><span id="calculation"></span></p>
 
+  <script src="helper.js"></script>
   <script>
     let latexMode = false;
 
@@ -56,35 +57,13 @@
       calculateECC();
     }
 
-    function clearElements(arr) {
-      for (const id of arr) {
-        document.getElementById(id).innerHTML = "";
-      }
-    }
-
-    function getValue(id) {
-      return parseInt(document.getElementById(id).value);
-    }
-
-    function setHTML(id, content) {
-      return document.getElementById(id).innerHTML = content;
-    }
-
-    function setColor(id, color) {
-      return document.getElementById(id).style.color = color;
-    }
-
     function calculateECC() {
       const a = getValue("a");
       const b = getValue("b");
       const p = getValue("p");
 
-      function mod(n) {
-        return ((n % p) + p) % p;
-      }
-
       function inverse(n) {
-        n = mod(n);
+        n = mod(n, p);
         let [r, r1] = [n, p];
         let [s, s1] = [1, 0];
 
@@ -95,13 +74,13 @@
         }
 
         if (r !== 1) throw new Error("Modular inverse does not exist");
-        return mod(s);
+        return mod(s, p), p;
       }
 
       if (isNaN(a) || isNaN(b) || isNaN(p)) {
         clearElements(["curve_valid", "p_valid", "q_valid", "calculation"]);
         return;
-      } else if (mod(4 * a**3 + 27 * b**2) == 0 || p <= 3) {
+      } else if (mod(4 * a**3 + 27 * b**2, p) == 0 || p <= 3) {
         clearElements(["p_valid", "q_valid", "calculation"]);
         setHTML("curve_valid", "(invalid curve)");
         setColor("curve_valid", "red");
@@ -121,7 +100,7 @@
 
       if (isNaN(x1) || isNaN(y1)) {
         clearElements(["p_valid"]);
-      } else if (mod(y1**2) == mod(x1**3 + a * x1 + b)) {
+      } else if (mod(y1**2, p) == mod(x1**3 + a * x1 + b, p)) {
         setHTML("p_valid", "(point on curve)");
         setColor("p_valid", "green");
         pInvalid = false;
@@ -132,7 +111,7 @@
 
       if (isNaN(x2) || isNaN(y2)) {
         clearElements(["q_valid"]);
-      } else if (mod(y2**2) == mod(x2**3 + a * x2 + b)) {
+      } else if (mod(y2**2, p) == mod(x2**3 + a * x2 + b, p)) {
         setHTML("q_valid", "(point on curve)");
         setColor("q_valid", "green");
         qInvalid = false;
@@ -148,7 +127,7 @@
 
       let s = 0;
       let calculation = "";
-      if (mod(x1) == mod(x2) & mod(y1) == mod(-y2)) {
+      if (mod(x1, p) == mod(x2, p) & mod(y1, p) == mod(-y2, p)) {
         if (latexMode) {
           calculation = `$(${x1}, ${y1}) = (${x2}, -${y2})$ <br><br>`;
           calculation += "$P + Q = (0, 0)$";
@@ -158,8 +137,8 @@
         }
         setHTML("calculation", calculation);
         return;
-      } else if (mod(x1) == mod(x2) & mod(y1) == mod(y2)) {
-        s = mod((3 * x1**2 + a) * inverse(2*y1));
+      } else if (mod(x1, p) == mod(x2, p) & mod(y1, p) == mod(y2, p)) {
+        s = mod((3 * x1**2 + a) * inverse(2*y1), p);
         if (latexMode) {
           calculation = `$(${x1}, ${y1}) = (${x2}, ${y2})$ <br><br>`;
           calculation += `$s = (3 \\cdot ${x1}^2 + ${a}) \\cdot (2 \\cdot ${y1})^{-1} = ${s} \\bmod ${p}$ <br><br>`;
@@ -168,7 +147,7 @@
           calculation += `s = (3 • ${x1}<sup>2</sup> + ${a}) • (2 • ${y1})<sup>-1</sup> = ${s} mod ${p} <br><br>`;
         }
       } else {
-        s = mod((y2 - y1) * inverse(x2-x1, p));
+        s = mod((y2 - y1) * inverse(x2-x1, p), p);
         if (latexMode) {
           calculation = `$(${x1}, ${y1}) \\neq (${x2}, ${y2})$ <br><br>`;
           calculation += `$s = (${y2} - ${y1}) \\cdot (${x2} - ${x1})^{-1} = ${s} \\bmod ${p}$ <br><br>`;
@@ -178,11 +157,11 @@
         }
       }
 
-      const x3 = mod(s**2 - x1 - x2);
-      const y3 = mod(s * (x1 - x3) - y1);
+      const x3 = mod(s**2 - x1 - x2, p);
+      const y3 = mod(s * (x1 - x3) - y1, p);
 
       if (latexMode) {
-        calculation += `$x_3 = ${s}^2 - ${x1} - ${x2} = ${x3} \\bmod ${p}$ <br>`;
+        calculation += `$x_3 = ${s}^2 - ${x1} - ${x2} = ${x3} \\bmod ${p}$ \\\\ <br>`;
         calculation += `$y_3 = ${s} \\cdot (${x1} - ${x3}) - ${y1} = ${y3} \\bmod ${p}$ <br><br>`;
         calculation += `$P + Q = (${x3}, ${y3})$`;
       } else {

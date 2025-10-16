@@ -1,8 +1,3 @@
-function latexToggle() {
-  latexMode = !latexMode;
-  calculateECC();
-}
-
 function clearElements(arr) {
   for (const id of arr) {
     document.getElementById(id).innerHTML = "";
@@ -19,4 +14,8 @@ function setHTML(id, content) {
 
 function setColor(id, color) {
   return document.getElementById(id).style.color = color;
+}
+
+function mod(n, p) {
+  return ((n % p) + p) % p;
 }

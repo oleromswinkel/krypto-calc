@@ -18,6 +18,7 @@
   <p><span id="table"></span></p>
   <p><span id="result"></span></p>
 
+  <script src="helper.js"></script>
   <script>
     let latexMode = false;
 
@@ -31,9 +32,9 @@
     }
 
     function calculateSQM() {
-      const base = parseInt(document.getElementById("base").value) || 0;
-      const exponent = parseInt(document.getElementById("exponent").value) || 0;
-      const modulus = parseInt(document.getElementById("modulus").value) || 0;
+      const base = getValue("base") || 0;
+      const exponent = getValue("exponent") || 0;
+      const modulus = getValue("modulus") || 0;
       
       if (base * exponent * modulus == 0) {
         return;
@@ -79,9 +80,9 @@
         table += "</table>";
       }
 
-      document.getElementById("prefix").textContent = `Binary: ${exponent_bin}`;
-      document.getElementById("table").innerHTML = table;
-      document.getElementById("result").textContent = `Final Result = ${result}`;
+      setHTML("prefix", `Binary: ${exponent_bin}`);
+      setHTML("table", table);
+      setHTML("result", `Final Result = ${result}`);
     }
   </script>
 </body>

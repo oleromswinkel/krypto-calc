@@ -16,6 +16,7 @@
   <p><span id="table"></span></p>
   <p><span id="result"></span></p>
 
+  <script src="helper.js"></script>
   <script>
     let latexMode = false;
 
@@ -28,14 +29,10 @@
       calculateEEA();
     }
 
-    function positiveMod(a, n) {
-      return ((a % n) + n) % n;
-    }
-
     function calculateEEA() {
-      const n = parseInt(document.getElementById("number").value) || 0;
-      const mod = parseInt(document.getElementById("modulus").value) || 0;
-      let r_2 = mod;
+      const n = getValue("number") || 0;
+      const modulus = getValue("modulus") || 0;
+      let r_2 = modulus;
       let r_1 = n;
 
       if (r_1 * r_2 == 0) {
@@ -84,19 +81,19 @@
         i++;
       }
 
-      document.getElementById("table").innerHTML = table;
+      setHTML("table", table);
 
       if (r_1 == 1) {
         if (latexMode) {
-          document.getElementById("result").innerHTML = `$${n}^{-1} \\equiv ${positiveMod(t_1, mod)} \\bmod ${mod}$`
+          setHTML("result", `$${n}^{-1} \\equiv ${mod(t_1, modulus)} \\bmod ${modulus}$`);
         } else {
-          document.getElementById("result").innerHTML = `${n}<sup>-1</sup> ≡ ${positiveMod(t_1, mod)} mod ${mod}`;
+          setHTML("result", `${n}<sup>-1</sup> ≡ ${mod(t_1, modulus)} mod ${modulus}`);
         }
       } else {
         if (latexMode) {
-          document.getElementById("result").innerHTML = `$${n}^{-1} \\bmod ${mod}$ existiert nicht`;
+          setHTML("result", `$${n}^{-1} \\bmod ${modulus}$ existiert nicht`);
         } else {
-          document.getElementById("result").innerHTML = `${n}<sup>-1</sup> mod ${mod} existiert nicht`;
+          setHTML("result", `${n}<sup>-1</sup> mod ${modulus} existiert nicht`);
         }
       }
     }
